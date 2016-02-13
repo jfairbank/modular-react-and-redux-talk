@@ -2,7 +2,7 @@ import React from 'react';
 import NameTag from './NameTag';
 
 const NameTagClassApp = () => (
-  <NameTag/>
+  <NameTag name="John Doe"/>
 );
 
 export default NameTagClassApp;

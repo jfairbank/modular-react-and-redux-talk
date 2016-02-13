@@ -3,7 +3,7 @@ import { Grid } from 'react-bootstrap';
 import ChildrenWithSource from './ChildrenWithSource';
 
 const Body = ({ children }) => (
-  <Grid fluid={true}>
+  <Grid fluid>
     <ChildrenWithSource>{children}</ChildrenWithSource>
   </Grid>
 );

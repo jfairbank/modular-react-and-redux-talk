@@ -1,10 +1,11 @@
 import React from 'react';
-import { IndexLink, Link } from 'react-router';
+import { IndexLink } from 'react-router';
 import { Navbar, NavDropdown, Nav } from 'react-bootstrap';
+import NavItem from './NavItem';
 
 const Header = () => (
   <header>
-    <Navbar fluid={true}>
+    <Navbar fluid>
       <Navbar.Header>
         <Navbar.Brand>
           <IndexLink to="/">Modular React & Redux</IndexLink>
@@ -12,13 +13,10 @@ const Header = () => (
       </Navbar.Header>
       <Nav>
         <NavDropdown id="class-vs-function-nav" title="Class vs. Function">
-          <li>
-            <Link to="/NameTagClass">NameTagClass</Link>
-          </li>
-          <li>
-            <Link to="/NameTagFunction">NameTagFunction</Link>
-          </li>
+          <NavItem to="/NameTagClass">NameTagClass</NavItem>
+          <NavItem to="/NameTagFunction">NameTagFunction</NavItem>
         </NavDropdown>
+        <NavItem to="/ContactManager">ContactManager</NavItem>
       </Nav>
     </Navbar>
   </header>

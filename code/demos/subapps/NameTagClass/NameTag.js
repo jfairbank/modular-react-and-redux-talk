@@ -2,7 +2,10 @@ import React, { PropTypes } from 'react';
 
 class NameTag extends React.Component {
   static propTypes = { name: PropTypes.string };
-  state = { name: 'John Doe' };
+
+  componentWillMount() {
+    this.setState({ name: this.props.name });
+  }
 
   updateName(name) {
     this.setState({ name });

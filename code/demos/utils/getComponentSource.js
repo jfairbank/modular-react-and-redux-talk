@@ -3,6 +3,7 @@ import { Children } from 'react';
 export const contentMap = Object.freeze({
   NameTagClassApp: [
     ['NameTag', require('!!raw!../subapps/NameTagClass/NameTag.js')],
+    ['NameTagClassApp', require('!!raw!../subapps/NameTagClass/index.js')],
   ],
 
   NameTagFunctionApp: [
