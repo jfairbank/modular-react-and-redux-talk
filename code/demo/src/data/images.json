@@ -1,0 +1,6 @@
+[
+  { "id": 1, "src": "/assets/images/cats-q-c-640-480-3.jpg", "text": "Cat 1" },
+  { "id": 2, "src": "/assets/images/cats-q-c-640-480-5.jpg", "text": "Cat 2" },
+  { "id": 3, "src": "/assets/images/cats-q-c-640-480-9.jpg", "text": "Cat 3" },
+  { "id": 4, "src": "/assets/images/cats-q-c-640-480-10.jpg", "text": "Cat 4" }
+]

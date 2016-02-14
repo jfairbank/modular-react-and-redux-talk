@@ -1,0 +1,14 @@
+{
+  "catImages": [
+    { "id": 1, "src": "/assets/images/cats-q-c-640-480-3.jpg",  "text": "Cat 1", "favorited": false },
+    { "id": 2, "src": "/assets/images/cats-q-c-640-480-5.jpg",  "text": "Cat 2", "favorited": true },
+    { "id": 3, "src": "/assets/images/cats-q-c-640-480-9.jpg",  "text": "Cat 3", "favorited": false },
+    { "id": 4, "src": "/assets/images/cats-q-c-640-480-10.jpg", "text": "Cat 4" }
+  ],
+  "natureImages": [
+    { "id": 1, "src": "/assets/images/nature-q-c-640-480-3.jpg", "text": "Nature 1", "favorited": true },
+    { "id": 2, "src": "/assets/images/nature-q-c-640-480-5.jpg", "text": "Nature 2", "favorited": false },
+    { "id": 3, "src": "/assets/images/nature-q-c-640-480-7.jpg", "text": "Nature 3", "favorited": false },
+    { "id": 4, "src": "/assets/images/nature-q-c-640-480-9.jpg", "text": "Nature 4", "favorited": true }
+  ]
+}
