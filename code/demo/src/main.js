@@ -1,186 +1,174 @@
 import React from 'react';
-import { render } from 'react-dom';
-import Icon from 'react-fontawesome';
 import { bindActionCreators, combineReducers, createStore } from 'redux';
 import { connect, Provider } from 'react-redux';
-import imageData from './data/images.json';
+import { Button, ButtonInput, Row, Col, Input } from 'react-bootstrap';
+import { render } from 'react-dom';
+import contactsData from './data/users.json';
 import styles from './styles.scss';
 
-// Reducers
-const INITIAL_STATE = {
-  images: imageData,
-  favorites: [],
-};
+let id = 3;
 
-function flipFavorited(image) {
-  return { ...image, favorited: !image.favorited };
-}
+// Actions
+const editContact = (contact) => ({ contact, type: 'EDIT_CONTACT' });
+const cancelEdit = () => ({ type: 'CANCEL_EDIT' });
+const saveContact = (contact) => ({ contact, type: 'SAVE_CONTACT' });
+const addContact = () => ({
+  contact: { id: id++ },
+  type: 'ADD_CONTACT',
+});
+const changeField = (fieldName, value) => ({
+  fieldName,
+  value,
+  type: 'CHANGE_FIELD',
+});
 
-function imageReducer(state = {}, action) {
+// Reducer
+function currentContactReducer(currentContact = null, action) {
   switch (action.type) {
-    case 'FAVORITE_IMAGE':
-    case 'UNFAVORITE_IMAGE':
-      if (state.id === action.image.id) {
-        return flipFavorited(state);
-      }
-      return state;
+    case 'EDIT_CONTACT':
+      return action.contact;
 
-    case 'EDIT_IMAGE':
-      if (state.id === action.id) {
-        return { ...state, editing: true };
-      }
-      return state;
+    case 'ADD_CONTACT':
+      return {
+        ...action.contact,
+        isNew: true,
+      };
 
-    case 'STOP_EDIT_IMAGE':
-      if (state.id === action.id) {
-        return { ...state, editing: false };
-      }
-      return state;
+    case 'SAVE_CONTACT':
+    case 'CANCEL_EDIT':
+      return null;
 
-    case 'SET_IMAGE_TEXT':
-      if (state.id === action.id) {
-        return { ...state, text: action.text };
-      }
-      return state;
+    case 'CHANGE_FIELD':
+      return {
+        ...currentContact,
+        [action.fieldName]: action.value,
+      };
     
     default:
-      return state;
+      return currentContact;
   }
 }
 
-function imageListReducer(state = imageData, action) {
-  return state.map(image => imageReducer(image, action));
-}
-
-function favoritesReducer(state = [], action) {
+const INITIAL_CONTACTS = contactsData.slice(0, 2);
+function contactsReducer(contacts = INITIAL_CONTACTS, action) {
   switch (action.type) {
-    case 'FAVORITE_IMAGE':
-      return state.concat(action.image);
-
-    case 'UNFAVORITE_IMAGE':
-      return state.filter(image => image.id !== action.image.id);
-
-    case 'SET_IMAGE_TEXT':
-      return state.map(image => {
-        if (image.id === action.id) {
-          return { ...image, text: action.text };
+    case 'SAVE_CONTACT':
+      return contacts.map(contact => {
+        if (contact.id === action.contact.id) {
+          return {
+            ...action.contact,
+            isNew: false
+          };
         }
-        return image;
+        return contact;
       });
     
+    case 'ADD_CONTACT':
+      return contacts.concat(action.contact);
+    
     default:
-      return state;
+      return contacts;
   }
 }
 
 const reducer = combineReducers({
-  images: imageListReducer,
-  favorites: favoritesReducer,
+  currentContact: currentContactReducer,
+  contacts: contactsReducer,
 });
-
-// Actions
-const favoriteImage = (image) => ({ image, type: 'FAVORITE_IMAGE' });
-const unfavoriteImage = (image) => ({ image, type: 'UNFAVORITE_IMAGE' });
-const editImage = (id) => ({ id, type: 'EDIT_IMAGE' });
-const setImageText = (id, text) => ({ id, text, type: 'SET_IMAGE_TEXT' });
-const stopEditImage = (id) => ({ id, type: 'STOP_EDIT_IMAGE' });
 
 // Store
 const store = createStore(reducer);
 
-const FavoritedImage = ({ src, text }) => (
-  <div className={styles.favoritedImage}>
-    <img src={src}/>
-    <p>{text}</p>
-  </div>
-);
-
-const FavoritedImages = ({ favorites }) => (
-  <div className={styles.favoritedImages}>
-    <h1>Favorites: {favorites.length}</h1>
-    <ul>
-      {favorites.map(image => (
-        <li key={image.id}>
-          <FavoritedImage {...image}/>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
-
-const ImageListItem = ({
-  id, src, text, editing, favorited,
-  onEdit, onFavorite, onUnfavorite, onChangeText, onStopEdit,
-}) => (
-  <div className={styles.imageListItem}>
-    <img src={src}/>
-
-    {editing ?
-      <p>
-        <input
-          type="text"
-          value={text}
-          onChange={e => onChangeText(id, e.target.value)}
-          onKeyUp={e => {
-            if (e.which === 13) {
-              onStopEdit(id);
-            }
-          }}
-        />
-      </p> :
-
-      <p onDoubleClick={onEdit}>{text}</p>
-    }
-
-    <button onClick={favorited ? onUnfavorite : onFavorite}>
-      <Icon name={favorited ? 'star' : 'star-o'}/>
-      {favorited ? ' Unfavorite' : ' Favorite'}
-    </button>
-  </div>
-);
-
-const ImageList = ({
-  images, onFavoriteImage, onUnfavoriteImage, onEditImage, onChangeImageText,
-  onStopEditImage,
+// Components
+const EditContact = ({
+  isNew, name, email, onChangeField, onSave, onCancel,
 }) => (
   <div>
-    <h1>Images</h1>
+    <h2>
+      {isNew ?
+        <strong>Adding New Contact</strong> :
 
-    {images.map(image => (
-      <ImageListItem
-        key={image.id}
-        {...image}
-        onFavorite={() => onFavoriteImage(image)}
-        onUnfavorite={() => onUnfavoriteImage(image)}
-        onEdit={() => onEditImage(image.id)}
-        onChangeText={onChangeImageText}
-        onStopEdit={onStopEditImage}
+        <div>
+          <strong>Editing:</strong>
+          {' '}
+          {name}
+        </div>
+      }
+    </h2>
+    <Input
+      type="text"
+      label="Name"
+      value={name}
+      onChange={e => onChangeField('name', e.target.value)}
+    />
+    <Input
+      type="text"
+      label="Email"
+      value={email}
+      onChange={e => onChangeField('email', e.target.value)}
+    />
+    <Button bsStyle="primary" onClick={onSave}>Save</Button>
+    {' '}
+    <Button onClick={onCancel}>Cancel</Button>
+  </div>
+);
+
+const Contact = ({ name, email, onEdit }) => (
+  <dl className={styles.contact}>
+    <dt>{name}</dt>
+    <dd>{email}</dd>
+
+    <Button onClick={onEdit}>
+      Edit
+    </Button>
+  </dl>
+);
+
+const ContactList = ({ contacts, onEditContact, onAddContact }) => (
+  <div>
+    {contacts.map(contact => (
+      <Contact
+        key={contact.id}
+        {...contact}
+        onEdit={() => onEditContact(contact)}
       />
     ))}
+
+    <Button bsStyle="primary" onClick={onAddContact}>
+      + Add Contact
+    </Button>
   </div>
 );
 
-const ConnectedImageList = connect(
-  null,
-  mapDispatchToProps
-)(ImageList);
+const ContactManager = ({
+  contacts,
+  currentContact,
+  onEditContact,
+  onCancelEdit,
+  onSaveContact,
+  onChangeField,
+  onAddContact,
+}) => {
+  if (currentContact) {
+    console.log('currentContact', currentContact);
+    return (
+      <EditContact
+        {...currentContact}
+        onChangeField={onChangeField}
+        onSave={() => onSaveContact(currentContact)}
+        onCancel={onCancelEdit}
+      />
+    );
+  }
 
-const ImageGallery = ({ images }) => (
-  <div>
-    <ConnectedImageList images={images}/>
-  </div>
-);
-
-const App = ({ images, favorites }) => (
-  <div>
-    <div className={styles.column}>
-      <ImageGallery images={images}/>
-    </div>
-    <div className={styles.column}>
-      <FavoritedImages favorites={favorites}/>
-    </div>
-  </div>
-);
+  return (
+    <ContactList
+      contacts={contacts}
+      onEditContact={onEditContact}
+      onAddContact={onAddContact}
+    />
+  );
+};
 
 function mapStateToProps(state) {
   return state;
@@ -188,21 +176,26 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    onFavoriteImage: favoriteImage,
-    onUnfavoriteImage: unfavoriteImage,
-    onEditImage: editImage,
-    onChangeImageText: setImageText,
-    onStopEditImage: stopEditImage,
+    onEditContact: editContact,
+    onCancelEdit: cancelEdit,
+    onSaveContact: saveContact,
+    onChangeField: changeField,
+    onAddContact: addContact,
   }, dispatch);
 }
 
-const ConnectedApp = connect(
-  mapStateToProps
-)(App);
+const ConnectedContactManager = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ContactManager);
+
+const App = () => (
+  <ConnectedContactManager/>
+);
 
 render(
   <Provider store={store}>
-    <ConnectedApp/>
+    <App/>
   </Provider>,
   document.getElementById('container')
 );
