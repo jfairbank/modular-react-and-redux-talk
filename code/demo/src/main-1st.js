@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, Input } from 'react-bootstrap';
 import { bindActionCreators, combineReducers, createStore } from 'redux';
 import { connect, Provider } from 'react-redux';
+import { Button, Input } from 'react-bootstrap';
 import { render } from 'react-dom';
 import contactsData from './data/users.json';
 import styles from './styles.scss';
@@ -9,28 +9,29 @@ import styles from './styles.scss';
 let id = 3;
 
 // Actions
-export const editContact = (contact) => ({ contact, type: 'EDIT_CONTACT'});
-export const saveContact = (contact) => ({ contact, type: 'SAVE_CONTACT'});
-export const cancelEdit = () => ({ type: 'CANCEL_EDIT' });
-export const changeField = (fieldName, value) => ({
+const editContact = (contact) => ({ contact, type: 'EDIT_CONTACT' });
+const cancelEdit = () => ({ type: 'CANCEL_EDIT' });
+const saveContact = (contact) => ({ contact, type: 'SAVE_CONTACT' });
+const addContact = () => ({
+  contact: { id: id++ },
+  type: 'ADD_CONTACT',
+});
+const changeField = (fieldName, value) => ({
   fieldName,
   value,
-  type: 'CHANGE_FIELD'
-});
-
-export const addContact = (contact) => ({
-  id: id++,
-  ...contact,
-  type: 'ADD_CONTACT'
+  type: 'CHANGE_FIELD',
 });
 
 // Reducer
-function currentContactReducer(state = null, action) {
+function currentContactReducer(currentContact = null, action) {
   switch (action.type) {
     case 'EDIT_CONTACT':
+      return action.contact;
+
+    case 'ADD_CONTACT':
       return {
         ...action.contact,
-        isNew: false
+        isNew: true,
       };
 
     case 'SAVE_CONTACT':
@@ -39,38 +40,34 @@ function currentContactReducer(state = null, action) {
 
     case 'CHANGE_FIELD':
       return {
-        ...state,
-        [action.fieldName]: action.value
+        ...currentContact,
+        [action.fieldName]: action.value,
       };
-
-    case 'ADD_CONTACT':
-      return {
-        ...action.contact,
-        isNew: true,
-      };
-
+    
     default:
-      return state;
+      return currentContact;
   }
 }
 
 const INITIAL_CONTACTS = contactsData.slice(0, 2);
-function contactsReducer(state = INITIAL_CONTACTS, action) {
+function contactsReducer(contacts = INITIAL_CONTACTS, action) {
   switch (action.type) {
     case 'SAVE_CONTACT':
-      if (action.contact.isNew) {
-        return state.concat(action.contact);
-      }
-
-      return state.map(contact => {
+      return contacts.map(contact => {
         if (contact.id === action.contact.id) {
-          return action.contact;
+          return {
+            ...action.contact,
+            isNew: false
+          };
         }
         return contact;
       });
-
+    
+    case 'ADD_CONTACT':
+      return contacts.concat(action.contact);
+    
     default:
-      return state;
+      return contacts;
   }
 }
 
@@ -84,12 +81,12 @@ const store = createStore(reducer);
 
 // Components
 const EditContact = ({
-  isNew, name, email, onSave, onCancel, onChangeField,
+  isNew, name, email, onChangeField, onSave, onCancel,
 }) => (
   <div>
     <h2>
       {isNew ?
-        <strong>Add New Contact:</strong> :
+        <strong>Adding New Contact</strong> :
 
         <div>
           <strong>Editing:</strong>
@@ -110,14 +107,9 @@ const EditContact = ({
       value={email}
       onChange={e => onChangeField('email', e.target.value)}
     />
-
-    <Button bsStyle="primary" onClick={onSave}>
-      Save
-    </Button>
+    <Button bsStyle="primary" onClick={onSave}>Save</Button>
     {' '}
-    <Button onClick={onCancel}>
-      Cancel
-    </Button>
+    <Button onClick={onCancel}>Cancel</Button>
   </div>
 );
 
@@ -132,9 +124,7 @@ const Contact = ({ name, email, onEdit }) => (
   </dl>
 );
 
-const ContactList = ({
-  contacts, onEditContact, onAddContact
-}) => (
+const ContactList = ({ contacts, onEditContact, onAddContact }) => (
   <div>
     {contacts.map(contact => (
       <Contact
@@ -145,32 +135,40 @@ const ContactList = ({
     ))}
 
     <Button bsStyle="primary" onClick={onAddContact}>
-      + Add New Contact
+      + Add Contact
     </Button>
   </div>
 );
 
 const ContactManager = ({
-  contacts, currentContact, onEditContact, onSaveContact, onCancelEdit,
-  onChangeField, onAddContact,
-}) => (
-  <div>
-    {currentContact ?
+  contacts,
+  currentContact,
+  onEditContact,
+  onCancelEdit,
+  onSaveContact,
+  onChangeField,
+  onAddContact,
+}) => {
+  if (currentContact) {
+    console.log('currentContact', currentContact);
+    return (
       <EditContact
         {...currentContact}
+        onChangeField={onChangeField}
         onSave={() => onSaveContact(currentContact)}
         onCancel={onCancelEdit}
-        onChangeField={onChangeField}
-      /> :
-
-      <ContactList
-        contacts={contacts}
-        onEditContact={onEditContact}
-        onAddContact={onAddContact}
       />
-    }
-  </div>
-);
+    );
+  }
+
+  return (
+    <ContactList
+      contacts={contacts}
+      onEditContact={onEditContact}
+      onAddContact={onAddContact}
+    />
+  );
+};
 
 function mapStateToProps(state) {
   return state;
@@ -179,8 +177,8 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     onEditContact: editContact,
-    onSaveContact: saveContact,
     onCancelEdit: cancelEdit,
+    onSaveContact: saveContact,
     onChangeField: changeField,
     onAddContact: addContact,
   }, dispatch);
