@@ -8,7 +8,8 @@
   "rules": {
     "no-case-declarations": 0,
     "no-console": 0,
-    "no-use-before-define":[2, {"functions": false}]
-    "react/jsx-no-bind": 0
+    "no-use-before-define":[2, "nofunc"],
+    "react/jsx-no-bind": 0,
+    "comma-dangle": [2, "never"]
   }
 }
