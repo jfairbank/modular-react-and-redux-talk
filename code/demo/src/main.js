@@ -1,47 +1,41 @@
 import React from 'react';
-import {
-  Button, Input
-} from 'react-bootstrap';
-import {
-  bindActionCreators,
-  combineReducers,
-  createStore
-} from 'redux';
-import {
-  connect,
-  Provider
-} from 'react-redux';
+import { Button, Input } from 'react-bootstrap';
+import { bindActionCreators, combineReducers, createStore } from 'redux';
+import { connect, Provider } from 'react-redux';
 import { render } from 'react-dom';
 import styles from './styles.scss';
 import contactsData from './data/users.json';
 
-// Actions
+// Action Creators
 const editContact = (contact) => ({
   contact,
   type: 'EDIT_CONTACT'
 });
+
 const saveContact = (contact) => ({
   contact,
   type: 'SAVE_CONTACT'
 });
+
 const cancelEdit = () => ({
   type: 'CANCEL_EDIT'
 });
+
 const changeField = (fieldName, value) => ({
   fieldName,
   value,
   type: 'CHANGE_FIELD'
 });
+
 let id = 3;
+
 const addContact = () => ({
   id: id++,
   type: 'ADD_CONTACT'
 });
 
 // Reducer
-function currentContactReducer(
-  state = null, action
-) {
+function currentContactReducer(state = null, action) {
   switch (action.type) {
     case 'EDIT_CONTACT':
       return {
@@ -70,13 +64,9 @@ function currentContactReducer(
   }
 }
 
-const INITIAL_CONTACTS = (
-  contactsData.slice(0, 2)
-);
+const INITIAL_CONTACTS = contactsData.slice(0, 2);
 
-function contactsReducer(
-  state = INITIAL_CONTACTS, action
-) {
+function contactsReducer(state = INITIAL_CONTACTS, action) {
   switch (action.type) {
     case 'SAVE_CONTACT':
       if (action.contact.isNew) {
@@ -109,8 +99,7 @@ const store = createStore(reducer);
 // Components
 const EditContact = ({
   isNew, name, email,
-  onSave, onCancel,
-  onChangeField
+  onSave, onCancel, onChangeField
 }) => (
   <div>
     {isNew ?
@@ -140,7 +129,9 @@ const EditContact = ({
     <Button bsStyle="primary" onClick={onSave}>
       Save
     </Button>
+
     {' '}
+
     <Button onClick={onCancel}>
       Cancel
     </Button>
@@ -175,10 +166,7 @@ const ContactList = ({
       />
     ))}
 
-    <Button
-      bsStyle="primary"
-      onClick={onAddContact}
-    >
+    <Button bsStyle="primary" onClick={onAddContact}>
       + Add New Contact
     </Button>
   </div>
@@ -186,9 +174,7 @@ const ContactList = ({
 
 const ContactManager = ({
   contacts, currentContact,
-  onEditContact, onSaveContact,
-  onCancelEdit, onChangeField,
-  onAddContact
+  onEditContact, onSaveContact, onCancelEdit, onChangeField, onAddContact
 }) => (
   currentContact ?
     <EditContact
