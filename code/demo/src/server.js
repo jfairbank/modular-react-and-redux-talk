@@ -2,7 +2,7 @@ import express from 'express';
 import path from 'path';
 
 const HOST = '127.0.0.1';
-const PORT = 8080;
+const PORT = 3000;
 
 const app = express();
 
